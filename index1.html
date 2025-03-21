@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js"></script>
+
+</head>
+<body>
+  
+    <header>
+        <a href="#" class="logo"><i class="fas fa-utensils"></i>food</a>
+    </header>
+
+    <section class="home" id="home">
+
+        <!-- <div class="content">
+            <h3>Scan & Dine</h3>
+            <p>Scan the QR code to view the menu</p>
+            <a href="#" class="btn">Eenter your details</a>
+        </div> -->
+
+        <div class="image">
+            <img src="home.jpg" alt="">
+        </div>
+         
+        <div class="form-box">
+            <h2 class="title">Scan & Dine</h2>
+            <input type="text" id="name" placeholder="Enter Name" required class="input-field">
+            <input type="tel" id="phone" placeholder="Enter Phone Number" required class="input-field">
+            <input type="email" id="email" placeholder="Enter Email (Optional)" class="input-field">
+            <button onclick="handleProceed()" class="submit-btn">Proceed to Menu</button>
+        </div>
+    </section>
+</body>
+
+
+
+<script>
+       function handleProceed() {
+            var name = document.getElementById("name").value;
+            var phone = document.getElementById("phone").value;
+            var email = document.getElementById("email").value;
+            
+            if (!name || !phone) {
+                alert("Please enter your name and phone number!");
+                return;
+            }
+            if (!/^[0-9]{10}$/.test(phone)) {
+                alert("Please enter a valid 10-digit phone number!");
+                return;
+            }
+            
+            localStorage.setItem("user", JSON.stringify({ name: name, phone: phone, email: email }));
+            window.location.href = "menu.html";
+        }
+    let menu=document.querySelector('#menu-bar');
+    let navbar=document.querySelector('.navbar');
+
+    menu.onclick=()=>{
+        menu.classList.toggle('fa-times');
+        navbar.classList.toggle('active');
+    }
+
+    window.onscroll =()=>{
+        menu.classList.remove('fa-times');
+        navbar.classList.remove('active');
+    }
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+ </section>
+    <section class="menu" id="menu">
+        <h1 class="heading">Our <span>Menu</span></h1>
+        <div class="menu-box">
+            <div class="menu-item">
+                <img class="image" src="m1.jpg" alt="">
+                <div class="content">
+                    <img src="m1.jpg" alt="">
+                    <h3>Pizza</h3>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, voluptas.</p>
+
+                </div>
+            </div>
+            <div class="menu-item">
+                <img class="image" src="m1.jpg" alt="">
+                <div class="content">
+                    <img src="m1.jpg" alt="">
+                    <h3>Pizza</h3>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, voluptas.</p>
+                    
+                </div>
+            </div>
+            <div class="menu-item">
+                <img class="image" src="m1.jpg" alt="">
+                <div class="content">
+                    <img src="m1.jpg" alt="">
+                    <h3>Pizza</h3>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, voluptas.</p>
+                    
+                </div>
+            </div>
+            <div class="menu-item">
+                <img class="image" src="m1.jpg" alt="">
+                <div class="content">
+                    <img src="m1.jpg" alt="">
+                    <h3>Pizza</h3>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, voluptas.</p>
+                    
+                </div>
+            </div>
+            <div class="menu-item">
+                <img class="image" src="m1.jpg" alt="">
+                <div class="content">
+                    <img src="m1.jpg" alt="">
+                    <h3>Pizza</h3>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, voluptas.</p>
+                    
+                </div>
+            </div>
+            <div class="menu-item">
+                <img class="image" src="m1.jpg" alt="">
+                <div class="content">
+                    <img src="m1.jpg" alt="">
+                    <h3>Pizza</h3>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, voluptas.</p>
+                    
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+     chef special
+    <section class="chef" id="chef">
+        <h1 class="heading">Our <span>Chef Special</span></h1>
+        <div class="chef-box">
+            <div class="chef-item">
+                <img class="image" src="c1.jpg" alt="">
+                <div class="content">
+                    <img src="c1.jpg" alt="">
+                    <h3>Chef Special</h3>
+                    <a href="#" class="btn">Add</a>
+                    
+                    
+                </div>
+            </div>
+            <div class="chef-item">
+                <img class="image" src="c1.jpg" alt="">
+                <div class="content">
+                    <img src="c1.jpg" alt="">
+                    <h3>Chef Special</h3>
+                    <a href="#" class="btn">Add</a>
+                    
+                </div>
+            </div>
+            <div class="chef-item">
+                <img class="image" src="c1.jpg" alt="">
+                <div class="content">
+                    <img src="c1.jpg" alt="">
+                    <h3>Chef Special</h3>
+                    <a href="#" class="btn">Add</a>
+                    
+                </div>
+            </div>
+            <div class="chef-item">
+                <img class="image" src="c1.jpg" alt="">
+                <div class="content">
+                    <img src="c1.jpg" alt="">
+                    <h3>Chef Special</h3>
+                    <a href="#" class="btn">Add</a>
+                    
+                </div>
+            </div>
+            <div class="chef-item">
+                <img class="image" src="c1.jpg" alt="">
+                <div class="content">
+                    <img src="c1.jpg" alt="">
+                    <h3>Chef Special</h3>
+                    <a href="#" class="btn">Add</a>
+                    
+                </div>
+            </div>
+            <div class="chef-item">
+                <img class="image" src="c1.jpg" alt="">
+                <div class="content">
+                    <img src="c1.jpg" alt="">
+                    <h3>Chef Special</h3>
+                    <a href="#" class="btn">Add</a>
+                    
+                </div>
+            </div>
+            <div class="chef-item">
+                <img class="image" src="c1.jpg" alt="">
+                <div class="content">
+                    <img src="c1.jpg" alt="">
+                    <h3>Chef Special</h3>
+                    <a href="#" class="btn">Add</a>
+                    
+                </div>
+            </div>
+            
+     </section> -->

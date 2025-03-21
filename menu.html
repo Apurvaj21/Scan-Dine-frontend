@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan & Dine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="menu.css">
+    <script src="index.js"></script>
+</head>
+<body>
+    <header>
+        <a href="#" class="logo"><i class="fas fa-utensils"></i>food</a>
+        <div id="menu-bar" class="fas fa-bars"></div>
+        <nav class="navbar">
+            <a href="#home">home</a>
+            <a href="#review">review</a>
+            <a href="#chef">chef special</a>
+        </nav>
+    </header>
+
+    <section class="menu" id="menu">
+        <h1 class="heading">Our <span>Menu</span></h1>
+    
+        <!-- Categories Section -->
+        <div class="category-box" id="category-list"></div>
+    
+        <!-- Menu Items -->
+        <div class="menu-box" id="menu-item"></div>
+    
+        <button onclick="goToCart()" class="order-btn">Order Now</button>
+    </section>
+
+   
+<script>
+    const BASE_URL = 'http://localhost:8080/itemCategory';
+    var cart = {};
+    async function fetchMenu() {
+    try {
+        const response = await fetch("http://localhost:8080/menuItem");
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Fetched Data:", data);
+        console.log("Type of Data:", typeof data);
+        console.log("Is Array?", Array.isArray(data));
+
+        const menuContainer = document.getElementById('menu-item'); // ✅ Fixed ID
+        if (!menuContainer) {
+            console.error("Element with ID 'menu-item' not found!");
+            return;
+        }
+        menuContainer.innerHTML = '';
+
+        // Group items by category
+        const categories = {};
+        data.forEach(item => {
+            const categoryId = item.category ? item.category.categoryId : "Uncategorized";
+            if (!categories[categoryId]) {
+                categories[categoryId] = {
+                    name: item.category ? item.category.categoryName : "Uncategorized",
+                    items: []
+                };
+            }
+            categories[categoryId].items.push(item);
+        });
+
+        // Render categories
+        Object.values(categories).forEach(category => {
+            const categorySection = document.createElement('div');
+            categorySection.classList.add('category-section');
+            categorySection.innerHTML = `
+                <div>
+                    <h2 class="category-name">${category.name}</h2>
+                    <div class="category-items"></div>
+                </div>
+            `;
+            menuContainer.appendChild(categorySection);
+
+            const categoryItemsContainer = categorySection.querySelector('.category-items');
+
+            // Render items inside category
+            category.items.forEach(item => {
+                const itemImg = item.img ? item.img : 'placeholder.jpg';
+
+                const menuItem = document.createElement('div');
+                menuItem.classList.add('menu-item');
+                menuItem.innerHTML = `
+                    <div>
+                        <img class="image" src="${itemImg}" alt="${item.name}" />
+                        <div class="content">
+                            <div >
+                                <img src="${item.img}" alt="${item.name}" />
+                                </div>
+                            <h3>${item.name}</h3>
+                            <p>${item.description}</p>
+                            <p>Price: ₹${item.price.toFixed(2)}</p>
+                            <div class="quantity-controls">
+                                <button onclick="decreaseQuantity('${item.itemId}')">-</button>
+                                <span id="qty-${item.itemId}">0</span>
+                                <button onclick="increaseQuantity('${item.itemId}')">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                categoryItemsContainer.appendChild(menuItem);
+            });
+        });
+
+    } catch (error) {
+        console.error('Error fetching menu:', error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", fetchMenu);
+
+fetchMenu();
+
+
+    function increaseQuantity(item) {
+        if (!cart[item]) {
+            cart[item] = 0;
+        }
+        cart[item]++;
+        document.getElementById(item + "-qty").textContent = cart[item];
+    }
+
+    function decreaseQuantity(item) {
+        if (cart[item] && cart[item] > 0) {
+            cart[item]--;
+            document.getElementById(item + "-qty").textContent = cart[item];
+        }
+    }
+
+    function goToCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        window.location.href = "cart.html";
+    }
+
+    fetchMenu();
+</script>
+</body>
+</html>

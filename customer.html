@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan & Dine - Order</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="customer.css">
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo"><i class="fas fa-utensils"></i> Scan & Dine</a>
+        <nav class="navbar">
+            <a href="#cart"><i class="fas fa-shopping-cart"></i> Cart (<span id="cart-count">0</span>)</a>
+        </nav>
+    </header>
+
+    <section class="menu" id="menu">
+        <h1 class="heading">Our <span>Menu</span></h1>
+        <div class="menu-box" id="menu-container"></div>
+        <div class="category-name" id="category-container"></div>
+    </section>
+
+    <section class="cart" id="cart">
+        <h2>Your Cart</h2>
+        <div id="cart-items"></div>
+        <h3>Total: ₹<span id="total-price">0.00</span></h3>
+    </section>
+
+    <section class="customer-form">
+        <h2>Enter Your Details</h2>
+        <form id="customer-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="tel" id="phoneNumber" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+
+            <button type="button" onclick="placeOrder()" class="order-btn">Place Order</button>
+        </form>
+    </section>
+
+<script>
+    const API_BASE_URL = 'http://localhost:8080';
+    let cart = JSON.parse(localStorage.getItem("cart")) || {};
+
+    async function fetchMenu() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/menuItem`);
+            const menuItems = await response.json();
+
+            const menuContainer = document.getElementById('menu-container');
+            menuContainer.innerHTML = '';
+
+            menuItems.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.classList.add('menu-item');
+                menuItem.innerHTML = `
+                    <img src="${item.img ? item.img : 'placeholder.jpg'}" alt="${item.name}" onerror="this.src='placeholder.jpg'"/>
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <p>Price: ₹${item.price.toFixed(2)}</p>
+                    <button onclick="addToCart('${item.itemId}', '${item.name}', ${item.price})" class="add">Add</button>
+                `;
+                menuContainer.appendChild(menuItem);
+            });
+
+            updateCartDisplay();
+        } catch (error) {
+            console.error('Error fetching menu:', error);
+        }
+    }
+
+    function addToCart(itemId, name, price) {
+        if (!cart[itemId]) {
+            cart[itemId] = { name, price, quantity: 0 };
+        }
+        cart[itemId].quantity++;
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+        const cartItemsContainer = document.getElementById("cart-items");
+        const totalPriceElement = document.getElementById("total-price");
+        const cartCountElement = document.getElementById("cart-count");
+
+        let totalPrice = 0;
+        let itemCount = 0;
+        cartItemsContainer.innerHTML = '';
+
+        Object.keys(cart).forEach(itemId => {
+            if (cart[itemId].quantity > 0) {
+                const cartItem = document.createElement("div");
+                cartItem.classList.add("cart-item");
+                cartItem.innerHTML = `
+                    <h4>${cart[itemId].name} (x${cart[itemId].quantity})</h4>
+                    <p>₹${(cart[itemId].price * cart[itemId].quantity).toFixed(2)}</p>
+                    <button onclick="updateQuantity('${itemId}', -1)">-</button>
+                    <span>${cart[itemId].quantity}</span>
+                    <button onclick="updateQuantity('${itemId}', 1)">+</button>
+                `;
+                cartItemsContainer.appendChild(cartItem);
+
+                totalPrice += cart[itemId].price * cart[itemId].quantity;
+                itemCount += cart[itemId].quantity;
+            }
+        });
+
+        totalPriceElement.textContent = totalPrice.toFixed(2);
+        cartCountElement.textContent = itemCount;
+    }
+
+    function updateQuantity(itemId, change) {
+        if (!cart[itemId]) return;
+        cart[itemId].quantity = Math.max(0, cart[itemId].quantity + change);
+        if (cart[itemId].quantity === 0) {
+            delete cart[itemId];
+        }
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartDisplay();
+    }
+
+    async function placeOrder() {
+    const name = document.getElementById("name").value.trim();
+    const phoneNumber = document.getElementById("phoneNumber").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+   
+   
+    if (!name) {
+        alert("Please enter your name.");
+        return;
+    }
+
+   
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+        alert("Please enter a valid 10-digit phone number.");
+        return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+    }
+
+    if (Object.keys(cart).length === 0) {
+        alert("Your cart is empty! Add items before placing an order.");
+        return;
+    }
+
+    const customer = { name, phoneNumber, email };
+
+    const order = {
+        customer,
+        orderItems: Object.keys(cart).map(id => ({
+            item: { itemId: parseInt(id) },  
+            quantity: cart[id].quantity
+        })),
+        totalAmount: parseFloat(document.getElementById("total-price").textContent),
+        status: "Pending"
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/orders`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(order)
+        });
+
+        if (!response.ok) throw new Error(`Error placing order: ${response.status}`);
+
+        alert("Order placed successfully!");
+        localStorage.removeItem("cart");
+        cart = {};
+        updateCartDisplay();
+        document.getElementById("customer-form").reset();
+    } catch (error) {
+        console.error("Failed to place order:", error);
+        alert("Failed to place order. Try again!");
+    }
+}
+    document.addEventListener("DOMContentLoaded", fetchMenu);
+</script>
+
+</body>
+</html>
